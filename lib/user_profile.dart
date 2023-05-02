@@ -41,6 +41,7 @@ class _AlumniProfilePageState extends State<AlumniProfilePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Alumni Profile'),
+        backgroundColor: Colors.blueGrey,
       ),
       body: SingleChildScrollView(
         child: Padding(
