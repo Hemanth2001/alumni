@@ -1,3 +1,5 @@
+import 'package:alumni/invitation_page.dart';
+import 'package:alumni/user_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:alumni/post_widget.dart';
 
@@ -12,6 +14,14 @@ class _HomePageState extends State<HomePage> {
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+     if(_selectedIndex==3){
+       Navigator.push(
+           context, MaterialPageRoute(builder: (context) => AlumniProfilePage()));
+     }
+      if(_selectedIndex==2){
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => InvitationPage()));
+      }
     });
   }
 
@@ -45,7 +55,97 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('My App'),
+        title: const Text('SVCE Alumni'),
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.search),
+          ),
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.more_vert),
+          ),
+        ],
+        backgroundColor: Colors.  blueGrey,
+
+      ),
+
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CircleAvatar(
+                    radius: 40,
+                    backgroundImage: AssetImage('assets/profile_image.png'),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'John Doe',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'johndoe@example.com',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.home),
+              title: Text('Home'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.person),
+              title: Text('Profile'),
+              onTap: () {
+                Navigator.pop(context);
+                // navigate to profile page
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.notifications),
+              title: Text('Invitations'),
+              onTap: () {
+                Navigator.pop(context);
+                // navigate to invitations page
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.people),
+              title: Text('Friends'),
+              onTap: () {
+                Navigator.pop(context);
+                // navigate to friends page
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('Logout'),
+              onTap: () {
+                Navigator.pop(context);
+                // navigate to friends page
+              },
+            ),
+          ],
+        ),
       ),
       body: ListView.builder(
         itemCount: _posts.length,
@@ -74,12 +174,12 @@ class _HomePageState extends State<HomePage> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Search',
+            icon: Icon(Icons.people),
+            label: 'friends',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.notifications),
-            label: 'Notifications',
+            label: 'Invitations',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
