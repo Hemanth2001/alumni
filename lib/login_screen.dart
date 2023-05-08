@@ -1,6 +1,7 @@
 import 'package:alumni/feed_page.dart';
 import 'package:alumni/home_screen.dart';
 import 'package:alumni/register_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -37,12 +38,68 @@ class _LoginScreenState extends State<LoginScreen> {
     await prefs.setBool('rememberMe', _rememberMe);
   }
 
+  // Future<void> _login() async {
+  //   setState(() {
+  //     _isLoading = true;
+  //   });
+
+    // TODO: Implement your own login logic here using the entered USN and password
+
+    // Simulating a delay for 3 seconds
+  //   await Future.delayed(Duration(seconds: 3));
+  //
+  //   if (_rememberMe) {
+  //     await _saveCredentials();
+  //   } else {
+  //     SharedPreferences prefs = await SharedPreferences.getInstance();
+  //     await prefs.clear();
+  //   }
+  //
+  //   Navigator.pushReplacement(
+  //     context,
+  //     MaterialPageRoute(builder: (context) => HomePage(),),
+  //   );
+  // }
+
+  void _register() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => RegistrationPage()),
+    );
+  }
+
   Future<void> _login() async {
     setState(() {
       _isLoading = true;
     });
 
     // TODO: Implement your own login logic here using the entered USN and password
+    final adminDoc = await FirebaseFirestore.instance.collection('users').doc
+      (_usnController.text).get();
+    print(adminDoc);
+    final adminData = adminDoc?.data();
+    print(adminData);
+    final adminPassword = adminData?['password'];
+    print(adminData?['password']);
+
+    if (_passwordController.text == adminPassword) {
+      print("login");
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setInt('isLoggedIn',1);
+      prefs.setString('ID',_usnController.text);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomePage()),
+      );
+      // Admin login successful, continue with your logic
+    } else {
+      print("logout");
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginScreen()),
+      );
+      // Invalid credentials, show an error message
+    }
 
     // Simulating a delay for 3 seconds
     await Future.delayed(Duration(seconds: 3));
@@ -54,18 +111,9 @@ class _LoginScreenState extends State<LoginScreen> {
       await prefs.clear();
     }
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => HomePage(),),
-    );
+
   }
 
-  void _register() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => RegistrationPage()),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {

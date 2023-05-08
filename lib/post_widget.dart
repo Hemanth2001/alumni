@@ -6,7 +6,7 @@ class PostWidget extends StatelessWidget {
   final String location;
   final String imageUrl;
   final String postText;
-  final String imagePostUrl;
+
   final int likes;
   final int comments;
   final int shares;
@@ -17,7 +17,6 @@ class PostWidget extends StatelessWidget {
     required this.location,
     required this.imageUrl,
     required this.postText,
-    required this.imagePostUrl,
     required this.likes,
     required this.comments,
     required this.shares,
@@ -88,7 +87,7 @@ class PostWidget extends StatelessWidget {
                 .of(context)
                 .size
                 .width,
-            child: Image.network(imagePostUrl, fit: BoxFit.cover),
+            child: Image.network(imageUrl, fit: BoxFit.cover),
           ),
           SizedBox(height: 16.0),
           Row(

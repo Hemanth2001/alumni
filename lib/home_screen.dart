@@ -1,7 +1,10 @@
 import 'package:alumni/invitation_page.dart';
+import 'package:alumni/login_screen.dart';
 import 'package:alumni/user_profile.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:alumni/post_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -10,6 +13,16 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
+
+  Future<void> logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setInt('isLoggedIn', 0);
+    prefs.setString('ID', "");
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LoginScreen()),
+    );
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -32,7 +45,7 @@ class _HomePageState extends State<HomePage> {
       location: 'New York, USA',
       imageUrl: 'https://picsum.photos/200/300',
       postText: 'My awesome post',
-      imagePostUrl: 'https://picsum.photos/600/400',
+
       likes: 123,
       comments: 4,
       shares: 7,
@@ -43,7 +56,7 @@ class _HomePageState extends State<HomePage> {
       location: 'San Francisco, USA',
       imageUrl: 'https://picsum.photos/seed/picsum/200/300',
       postText: 'Another great post',
-      imagePostUrl: 'https://picsum.photos/seed/picsum/600/400',
+
       likes: 456,
       comments: 9,
       shares: 12,
@@ -139,30 +152,46 @@ class _HomePageState extends State<HomePage> {
               leading: Icon(Icons.logout),
               title: Text('Logout'),
               onTap: () {
-                Navigator.pop(context);
+                logout();
                 // navigate to friends page
               },
             ),
           ],
         ),
       ),
-      body: ListView.builder(
-        itemCount: _posts.length,
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('posts').snapshots(),
+    builder: (context, snapshot) {
+      if (!snapshot.hasData) {
+        return Center(
+          child: CircularProgressIndicator(),
+        );
+      }
+
+      final documents = snapshot.data!.docs;
+
+      return ListView.builder(
+        itemCount: documents.length,
         itemBuilder: (context, index) {
-          final post = _posts[index];
+          final document = documents[index];
+          final data = document.data() as Map<String, dynamic>;
+
           return PostWidget(
-            name: post.name,
-            jobTitle: post.jobTitle,
-            location: post.location,
-            imageUrl: post.imageUrl,
-            postText: post.postText,
-            imagePostUrl: post.imagePostUrl,
-            likes: post.likes,
-            comments: post.comments,
-            shares: post.shares,
+            name: data['name'],
+            jobTitle: data['jobTitle'],
+            location: data['location'],
+            imageUrl: data['imageUrl'],
+            postText: data['postText'],
+            likes: data['likes'],
+            comments: data['comments'],
+            shares: data['shares'],
           );
         },
-      ),
+      );
+    }
+    ),
+
+
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.blue,
         currentIndex: _selectedIndex,
@@ -185,8 +214,10 @@ class _HomePageState extends State<HomePage> {
             label: 'Profile',
           ),
         ],
-        unselectedItemColor: Colors.grey,
-        selectedItemColor: Colors.black,
+
+
+      unselectedItemColor: Colors.grey,
+      selectedItemColor: Colors.black,
       ),
     );
   }
@@ -198,7 +229,6 @@ class Post {
   final String location;
   final String imageUrl;
   final String postText;
-  final String imagePostUrl;
   final int likes;
   final int comments;
   final int shares;
@@ -209,7 +239,6 @@ class Post {
     required this.location,
     required this.imageUrl,
     required this.postText,
-    required this.imagePostUrl,
     required this.likes,
     required this.comments,
     required this.shares,
