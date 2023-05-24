@@ -1,11 +1,12 @@
 import 'package:alumni/invitation_page.dart';
 import 'package:alumni/login_screen.dart';
 import 'package:alumni/user_profile.dart';
-import 'package:alumni/pf.dart';
+import 'package:alumni/linkedin.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:alumni/post_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 
 class HomePage extends StatefulWidget {
   @override
@@ -14,6 +15,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
+  String _name="";
+  String _email="";
 
   Future<void> logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -30,13 +33,47 @@ class _HomePageState extends State<HomePage> {
       _selectedIndex = index;
      if(_selectedIndex==3){
        Navigator.push(
-           context, MaterialPageRoute(builder: (context) => ProfilePage()));
+           context, MaterialPageRoute(builder: (context) => AlumniProfilePage()));
      }
-      if(_selectedIndex==2){
+      if(_selectedIndex==1){
         Navigator.push(
             context, MaterialPageRoute(builder: (context) => InvitationPage()));
+        //InvitationPage()
+      }
+      if(_selectedIndex==2){
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => OnHoldPage()));
+        //InvitationPage()
       }
     });
+  }
+  void _getUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String savedUsn = prefs.getString('ID') ?? '';
+
+    DocumentSnapshot snapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(savedUsn)
+        .get();
+
+    if (snapshot.exists) {
+      Map<String, dynamic>? data = snapshot.data() as Map<String, dynamic>?;
+
+      if (data != null) {
+        setState(() {
+          _name = data['name'] ?? '';
+          _email = data['email'] ?? '';
+        });
+      }
+    } else {
+      // Handle the case when the document is not found
+      print('Document not found');
+    }
+  }
+  void initState() {
+    _getUserData();
+    super.initState();
+
   }
 
   @override
@@ -71,11 +108,11 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   CircleAvatar(
                     radius: 40,
-                    backgroundImage: AssetImage('assets/profile_image.png'),
+                    backgroundImage: AssetImage('images/profile_image.jpg'),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'John Doe',
+                    _name,
                     style: TextStyle(
                       fontSize: 18,
                       color: Colors.white,
@@ -83,7 +120,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'johndoe@example.com',
+                    _email,
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.white,
@@ -103,23 +140,27 @@ class _HomePageState extends State<HomePage> {
               leading: Icon(Icons.person),
               title: Text('Profile'),
               onTap: () {
-                Navigator.pop(context);
-                // navigate to profile page
+                Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => AlumniProfilePage()));
+
               },
             ),
             ListTile(
-              leading: Icon(Icons.notifications),
+              leading: Icon(Icons.inventory_2_outlined),
               title: Text('Invitations'),
               onTap: () {
-                Navigator.pop(context);
+                Navigator.push(
+                    context, MaterialPageRoute(builder: (context) => InvitationPage()));
+
                 // navigate to invitations page
               },
             ),
             ListTile(
-              leading: Icon(Icons.people),
-              title: Text('Friends'),
+              leading: Icon(Icons.line_weight_outlined),
+              title: Text('LinkedIn'),
               onTap: () {
-                Navigator.pop(context);
+                Navigator.push(
+                    context, MaterialPageRoute(builder: (context) => OnHoldPage()));
                 // navigate to friends page
               },
             ),
@@ -177,12 +218,12 @@ class _HomePageState extends State<HomePage> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.people),
-            label: 'friends',
+            icon: Icon(Icons.inventory_2_outlined),
+            label: 'Invitation',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: 'Invitations',
+            icon: Icon(Icons.line_weight_outlined),
+            label: 'LinkedIn',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),

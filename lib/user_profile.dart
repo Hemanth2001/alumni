@@ -12,14 +12,16 @@ class AlumniProfilePage extends StatefulWidget {
 
 class _AlumniProfilePageState extends State<AlumniProfilePage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  TextEditingController _name= TextEditingController();
+  TextEditingController _phone = TextEditingController();
+  TextEditingController _yearOfPassing = TextEditingController();
+  TextEditingController _email = TextEditingController();
+  TextEditingController _branch = TextEditingController();
+  TextEditingController _usn = TextEditingController();
+  TextEditingController _currentLocation = TextEditingController();
 
-  String _name = "";
-  String _email = "";
-  String _phone = "";
-  String _yearOfPassing = "";
-  String _branch = "";
-  String _usn = "";
-  String _currentLocation = "";
+
+
 
   void _getUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -35,13 +37,13 @@ class _AlumniProfilePageState extends State<AlumniProfilePage> {
 
       if (data != null) {
         setState(() {
-          _name = data['name'] ?? '';
-          _email = data['email'] ?? '';
-          _phone = data['phone'] ?? '';
-          _yearOfPassing = data['year'].toString() ?? ''; // Convert to String
-          _branch = data['branch'] ?? '';
-          _usn = data['usn'] ?? '';
-          _currentLocation = data['currentLocation'] ?? '';
+          _name = TextEditingController(text: data['name'] ?? '');
+          _email = TextEditingController(text: data['email'] ?? '');
+          _phone = TextEditingController(text: data['mobile']?.toString() ?? '');
+          _yearOfPassing = TextEditingController(text: data['year']?.toString() ?? '');
+          _branch = TextEditingController(text: data['profession'] ?? '');
+          _usn = TextEditingController(text: data['usn'] ?? '');
+          _currentLocation = TextEditingController(text: data['location'] ?? '');
         });
       }
     } else {
@@ -53,6 +55,7 @@ class _AlumniProfilePageState extends State<AlumniProfilePage> {
 
 
 
+
   void _saveForm() async {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -60,8 +63,22 @@ class _AlumniProfilePageState extends State<AlumniProfilePage> {
 
     _formKey.currentState!.save();
 
-    // Save the form data to a database or other storage mechanism
-    // ...
+    // Update the form data in Firestore
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String savedUsn = prefs.getString('ID') ?? '';
+
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(savedUsn)
+        .update({
+      'name': _name.text,
+      'email': _email.text,
+      'mobile': _phone.text,
+      'year': int.parse(_yearOfPassing.text),
+      'profession': _branch.text,
+      'usn': _usn.text,
+      'location': _currentLocation.text,
+    });
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -70,6 +87,7 @@ class _AlumniProfilePageState extends State<AlumniProfilePage> {
       ),
     );
   }
+
 
   @override
   void initState() {
@@ -101,15 +119,15 @@ class _AlumniProfilePageState extends State<AlumniProfilePage> {
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
-                  initialValue: _name,
+                  controller: _name,
                   decoration: const InputDecoration(
 
                     labelText: 'Name',
                   ),
-                  onSaved: (value) => _name = value!,
+                  onSaved: (value) => _name = value! as TextEditingController,
                 ),
                 TextFormField(
-                  initialValue: _email,
+                  controller: _email,
                   decoration: const InputDecoration(
                     labelText: 'Email',
                   ),
@@ -122,10 +140,10 @@ class _AlumniProfilePageState extends State<AlumniProfilePage> {
                     }
                     return null;
                   },
-                  onSaved: (value) => _email = value!,
+                  onSaved: (value) => _email = value! as TextEditingController,
                 ),
                 TextFormField(
-                  initialValue: _phone,
+                  controller: _phone,
                   decoration: const InputDecoration(
                     labelText: 'Phone',
                   ),
@@ -136,10 +154,10 @@ class _AlumniProfilePageState extends State<AlumniProfilePage> {
                     }
                     return null;
                   },
-                  onSaved: (value) => _phone = value!,
+                  onSaved: (value) => _phone = value! as TextEditingController,
                 ),
                 TextFormField(
-                  initialValue: _yearOfPassing,
+                  controller: _yearOfPassing,
                   decoration: const InputDecoration(
                     labelText: 'Year of Passing',
                   ),
@@ -150,12 +168,12 @@ class _AlumniProfilePageState extends State<AlumniProfilePage> {
                     }
                     return null;
                   },
-                  onSaved: (value) => _yearOfPassing = value!,
+                  onSaved: (value) => _yearOfPassing = value! as TextEditingController,
                 ),
                 TextFormField(
-                  initialValue: _branch,
+                  controller: _branch,
                   decoration: const InputDecoration(
-                    labelText: 'Branch',
+                    labelText: 'Profession',
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -163,10 +181,10 @@ class _AlumniProfilePageState extends State<AlumniProfilePage> {
                     }
                     return null;
                   },
-                  onSaved: (value) => _branch = value!,
+                  onSaved: (value) => _branch = value! as TextEditingController,
                 ),
                 TextFormField(
-                  initialValue: _usn,
+                  controller: _usn,
                   decoration: const InputDecoration(
                     labelText: 'USN',
                   ),
@@ -176,10 +194,10 @@ class _AlumniProfilePageState extends State<AlumniProfilePage> {
                     }
                     return null;
                   },
-                  onSaved: (value) => _usn = value!,
+                  onSaved: (value) => _usn = value! as TextEditingController,
                 ),
                 TextFormField(
-                  initialValue: _currentLocation,
+                  controller: _currentLocation,
                   decoration: const InputDecoration(
                     labelText: 'Current Location',
                   ),
@@ -189,11 +207,11 @@ class _AlumniProfilePageState extends State<AlumniProfilePage> {
                     }
                     return null;
                   },
-                  onSaved: (value) => _currentLocation = value!,
+                  onSaved: (value) => _currentLocation = value! as TextEditingController,
                 ),
                 const SizedBox(height: 32),
                 ElevatedButton(
-                  onPressed: _getUserData,
+                  onPressed: _saveForm,
                   child: const Text('Save'),
                 ),
               ],
