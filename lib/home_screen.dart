@@ -1,6 +1,7 @@
 import 'package:alumni/invitation_page.dart';
 import 'package:alumni/login_screen.dart';
 import 'package:alumni/user_profile.dart';
+import 'package:alumni/pf.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:alumni/post_widget.dart';
@@ -29,7 +30,7 @@ class _HomePageState extends State<HomePage> {
       _selectedIndex = index;
      if(_selectedIndex==3){
        Navigator.push(
-           context, MaterialPageRoute(builder: (context) => AlumniProfilePage()));
+           context, MaterialPageRoute(builder: (context) => ProfilePage()));
      }
       if(_selectedIndex==2){
         Navigator.push(
@@ -37,32 +38,6 @@ class _HomePageState extends State<HomePage> {
       }
     });
   }
-
-  final List<Post> _posts = [
-    Post(
-      name: 'John Doe',
-      jobTitle: 'Software Developer at ABC Company',
-      location: 'New York, USA',
-      imageUrl: 'https://picsum.photos/200/300',
-      postText: 'My awesome post',
-
-      likes: 123,
-      comments: 4,
-      shares: 7,
-    ),
-    Post(
-      name: 'Jane Smith',
-      jobTitle: 'Frontend Developer at XYZ Inc.',
-      location: 'San Francisco, USA',
-      imageUrl: 'https://picsum.photos/seed/picsum/200/300',
-      postText: 'Another great post',
-
-      likes: 456,
-      comments: 9,
-      shares: 12,
-    ),
-    // add more posts here
-  ];
 
   @override
   Widget build(BuildContext context) {

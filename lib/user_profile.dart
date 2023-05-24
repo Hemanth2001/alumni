@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:core';
 
 class AlumniProfilePage extends StatefulWidget {
   const AlumniProfilePage({Key? key}) : super(key: key);
@@ -10,15 +13,47 @@ class AlumniProfilePage extends StatefulWidget {
 class _AlumniProfilePageState extends State<AlumniProfilePage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  String _name = "John Doe";
-  String _email = "johndoe@example.com";
-  String _phone = "555-555-5555";
-  String _yearOfPassing = "2010";
-  String _branch = "Computer Science";
-  String _usn = "1RV10CS001";
-  String _currentLocation = "Bangalore, India";
+  String _name = "";
+  String _email = "";
+  String _phone = "";
+  String _yearOfPassing = "";
+  String _branch = "";
+  String _usn = "";
+  String _currentLocation = "";
 
-  void _saveForm() {
+  void _getUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String savedUsn = prefs.getString('ID') ?? '';
+
+    DocumentSnapshot snapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(savedUsn)
+        .get();
+
+    if (snapshot.exists) {
+      Map<String, dynamic>? data = snapshot.data() as Map<String, dynamic>?;
+
+      if (data != null) {
+        setState(() {
+          _name = data['name'] ?? '';
+          _email = data['email'] ?? '';
+          _phone = data['phone'] ?? '';
+          _yearOfPassing = data['year'].toString() ?? ''; // Convert to String
+          _branch = data['branch'] ?? '';
+          _usn = data['usn'] ?? '';
+          _currentLocation = data['currentLocation'] ?? '';
+        });
+      }
+    } else {
+      // Handle the case when the document is not found
+      print('Document not found');
+    }
+  }
+
+
+
+
+  void _saveForm() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -34,6 +69,13 @@ class _AlumniProfilePageState extends State<AlumniProfilePage> {
         duration: const Duration(seconds: 2),
       ),
     );
+  }
+
+  @override
+  void initState() {
+   _getUserData();
+    super.initState();
+
   }
 
   @override
@@ -54,13 +96,14 @@ class _AlumniProfilePageState extends State<AlumniProfilePage> {
                 Center(
                   child: CircleAvatar(
                     radius: 75,
-                    backgroundImage: AssetImage('assets/profile_image.png'),
+                    backgroundImage: AssetImage('images/profile_image.jpg'),
                   ),
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   initialValue: _name,
                   decoration: const InputDecoration(
+
                     labelText: 'Name',
                   ),
                   onSaved: (value) => _name = value!,
@@ -72,7 +115,9 @@ class _AlumniProfilePageState extends State<AlumniProfilePage> {
                   ),
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
-                    if (value == null || value.isEmpty || !value.contains('@')) {
+                    if (value == null ||
+                        value.isEmpty ||
+                        !value.contains('@')) {
                       return 'Please enter a valid email address';
                     }
                     return null;
@@ -101,7 +146,7 @@ class _AlumniProfilePageState extends State<AlumniProfilePage> {
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter a year of passing';
+                      return 'Please enter your year of passing';
                     }
                     return null;
                   },
@@ -114,7 +159,7 @@ class _AlumniProfilePageState extends State<AlumniProfilePage> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter a branch';
+                      return 'Please enter your branch';
                     }
                     return null;
                   },
@@ -127,7 +172,7 @@ class _AlumniProfilePageState extends State<AlumniProfilePage> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter a USN';
+                      return 'Please enter your USN';
                     }
                     return null;
                   },
@@ -140,18 +185,16 @@ class _AlumniProfilePageState extends State<AlumniProfilePage> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter a current location';
+                      return 'Please enter your current location';
                     }
                     return null;
                   },
                   onSaved: (value) => _currentLocation = value!,
                 ),
                 const SizedBox(height: 32),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: _saveForm,
-                    child: const Text('Save Profile'),
-                  ),
+                ElevatedButton(
+                  onPressed: _getUserData,
+                  child: const Text('Save'),
                 ),
               ],
             ),

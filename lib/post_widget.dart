@@ -34,7 +34,7 @@ class PostWidget extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 20.0,
-                backgroundImage: NetworkImage(imageUrl),
+                backgroundImage: AssetImage('images/profile_image.jpg'),
               ),
               SizedBox(width: 16.0),
               Expanded(
